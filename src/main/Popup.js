@@ -11,6 +11,8 @@ class Popup extends Component {
     this.width = Platform.OS === 'android' ? Dimensions.get('screen').width : Dimensions.get('window').width;
 
     this.defaultState = {
+      width: this.width,
+      height: this.height,
       positionView: new Animated.Value(this.height),
       opacity: new Animated.Value(0),
       positionPopup: new Animated.Value(this.height),
@@ -54,6 +56,25 @@ class Popup extends Component {
 
   }
 
+  componentDidMount() {
+    Dimensions.addEventListener("change", this.handleDimensionsChange);
+  }
+
+  componentWillUnmount() {
+    Dimensions.removeEventListener("change", this.handleDimensionsChange);
+  }
+
+  handleDimensionsChange = ({ window }) => {
+
+    this.setState({
+      width: window.width,
+      height: window.height,
+      positionView: new Animated.Value(window.height),
+      positionPopup: new Animated.Value(window.height),
+    });
+
+  }
+
   static show({...config}) {
     this.popupInstance.start(config);
   }
@@ -90,7 +111,7 @@ class Popup extends Component {
           useNativeDriver: this.state.useNativeDriver,
         }),
         Animated.spring(this.state.positionPopup, {
-          toValue: (this.height / 2) - (this.state.popupHeight / 2),
+          toValue: (this.state.height / 2) - (this.state.popupHeight / 2),
           bounciness: this.state.bounciness,
           useNativeDriver: this.state.useNativeDriver,
         }),
@@ -116,7 +137,7 @@ class Popup extends Component {
     }
     Animated.sequence([
       Animated.timing(positionPopup, {
-        toValue: this.height,
+        toValue: this.state.height,
         duration: this.state.closeDuration * 2.5,
         useNativeDriver: this.state.useNativeDriver,
       }),
@@ -126,7 +147,7 @@ class Popup extends Component {
         useNativeDriver: this.state.useNativeDriver,
       }),
       Animated.timing(positionView, {
-        toValue: this.height,
+        toValue: this.state.height,
         duration: this.state.closeDuration,
         useNativeDriver: this.state.useNativeDriver,
       }),
@@ -164,8 +185,8 @@ class Popup extends Component {
             ref={c => this._root = c}
             style={[
               styles.Container, {
-                width: this.width,
-                height: this.height,
+                width: this.state.width,
+                height: this.state.height,
                 backgroundColor: background || 'transparent',
                 opacity: opacity,
                 transform: [
