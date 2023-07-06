@@ -66,6 +66,8 @@ class Popup extends Component {
 
   handleDimensionsChange = ({ window }) => {
 
+    console.log("hi");
+
     this.setState({
       width: window.width,
       height: window.height,
